@@ -17,20 +17,13 @@
  *     along with ButteredToast.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ca.gabrielcastro.butteredtoast;
+package ca.gabrielcastro.butteredtoast.hooks;
 
-import ca.gabrielcastro.butteredtoast.hooks.HookToastShow;
-import de.robv.android.xposed.IXposedHookLoadPackage;
+
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-public class XposedHook implements IXposedHookLoadPackage {
+public interface AutoHookable {
 
-    @Override
-    public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
-
-        XC_MethodHook.Unhook show = new HookToastShow(loadPackageParam).hook();
-
-    }
+    public XC_MethodHook.Unhook hook();
 
 }

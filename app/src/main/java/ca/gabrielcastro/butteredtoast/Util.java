@@ -19,18 +19,26 @@
 
 package ca.gabrielcastro.butteredtoast;
 
-import ca.gabrielcastro.butteredtoast.hooks.HookToastShow;
-import de.robv.android.xposed.IXposedHookLoadPackage;
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
-public class XposedHook implements IXposedHookLoadPackage {
+import java.util.List;
 
-    @Override
-    public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
+public class Util {
 
-        XC_MethodHook.Unhook show = new HookToastShow(loadPackageParam).hook();
+    private Util() {}
 
+    public static void finaAllTextView(List<TextView> addTo, ViewGroup view) {
+        int count = view.getChildCount();
+        for (int i = 0; i < count; ++i) {
+            View child = view.getChildAt(i);
+            if (child instanceof TextView) {
+                addTo.add((TextView) child);
+            } else if (child instanceof ViewGroup) {
+                finaAllTextView(addTo, view);
+            }
+        }
     }
 
 }
