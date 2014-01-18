@@ -19,6 +19,8 @@
 
 package ca.gabrielcastro.butteredtoast;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.text.SpannableStringBuilder;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,17 +30,16 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.robv.android.xposed.IXposedHookLoadPackage;
+import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-public class XposedHook  implements IXposedHookLoadPackage {
+public class XposedHook  implements IXposedHookZygoteInit {
 
 
     @Override
-    public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
+    public void initZygote(StartupParam startupParam) throws Throwable {
         XposedHelpers.findAndHookMethod(Toast.class, "show", new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -57,7 +58,10 @@ public class XposedHook  implements IXposedHookLoadPackage {
                     TextView text = list.get(0);
                     CharSequence cs = text.getText();
                     if (cs != null) {
-                        CharSequence name = text.getContext().getPackageManager().getApplicationLabel(loadPackageParam.appInfo);
+                        Context context = (Context) XposedHelpers.getObjectField(t, "mContext");
+                        PackageManager pm = context.getPackageManager();
+                        pm.getApplicationInfo(context.getPackageName(), 0);
+                        CharSequence name = pm.getApplicationLabel(pm.getApplicationInfo(context.getPackageName(), 0));
                         SpannableStringBuilder builder = new SpannableStringBuilder(name);
                         builder.append(":\n").append(cs);
                         text.setText(builder.toString());
