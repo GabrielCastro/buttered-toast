@@ -56,10 +56,18 @@ public class HookToastShow extends XC_MethodHook implements AutoHookable {
     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
         Toast t = (Toast) param.thisObject;
         try {
+
             View view = t.getView();
+            String appName = view.getContext().getPackageManager().getApplicationLabel(mParam.appInfo).toString();
             List<TextView> list = new ArrayList<TextView>();
             if (view instanceof TextView) {
                 list.add((TextView) view);
+                XposedBridge.log("TextView is toast view");
+                ((TextView) view).setText(new SpannableStringBuilder(appName)
+                        .append('\n')
+                        .append(((TextView) view).getText())
+                );
+                return;
             } else if (view instanceof ViewGroup) {
                 Util.finaAllTextView(list, (ViewGroup) view);
             }
@@ -79,7 +87,6 @@ public class HookToastShow extends XC_MethodHook implements AutoHookable {
             appText.setGravity(Gravity.CENTER_HORIZONTAL);
             appText.setPadding(appText.getPaddingLeft(), appText.getPaddingTop(), appText.getPaddingRight(), appText.getPaddingBottom() * 2);
 
-            String appName = text.getContext().getPackageManager().getApplicationLabel(mParam.appInfo).toString();
             // add NBSP's to force it to lock centered even if it's longer than the text
             appName = '\u00A0' + appName + '\u00A0';
             appText.setText(appName);
