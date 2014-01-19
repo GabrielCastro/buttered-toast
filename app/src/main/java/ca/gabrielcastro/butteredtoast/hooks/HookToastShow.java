@@ -19,9 +19,18 @@
 
 package ca.gabrielcastro.butteredtoast.hooks;
 
+import android.content.Context;
+import android.content.res.XModuleResources;
+import android.content.res.XResources;
+import android.graphics.drawable.Drawable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ca.gabrielcastro.butteredtoast.Util;
+import ca.gabrielcastro.butteredtoast.XposedHook;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -57,13 +67,23 @@ public class HookToastShow extends XC_MethodHook implements AutoHookable {
                 throw new RuntimeException("number of TextViews in toast is not 1");
             }
             TextView text = list.get(0);
-            CharSequence cs = text.getText();
-            if (cs != null) {
-                CharSequence name = text.getContext().getPackageManager().getApplicationLabel(mParam.appInfo);
-                SpannableStringBuilder builder = new SpannableStringBuilder(name);
-                builder.append(":\n").append(cs);
-                text.setText(builder.toString());
-            }
+            ViewGroup parent = (ViewGroup) text.getParent();
+
+            TextView appText = new TextView(text.getContext());
+            appText.setTextColor(text.getTextColors());
+            appText.setTextSize(TypedValue.COMPLEX_UNIT_PX, text.getTextSize());
+            appText.setTypeface(text.getTypeface());
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            appText.setLayoutParams(params);
+            appText.setGravity(Gravity.CENTER_HORIZONTAL);
+            appText.setPadding(appText.getPaddingLeft(), appText.getPaddingTop(), appText.getPaddingRight(), appText.getPaddingBottom() * 2);
+
+            String appName = text.getContext().getPackageManager().getApplicationLabel(mParam.appInfo).toString();
+            // add NBSP's to force it to lock centered even if it's longer than the text
+            appName = '\u00A0' + appName + '\u00A0';
+            appText.setText(appName);
+            parent.addView(appText, 0);
         } catch (RuntimeException e) {
             XposedBridge.log(e);
         }
