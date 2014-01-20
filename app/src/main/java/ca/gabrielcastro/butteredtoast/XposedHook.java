@@ -20,26 +20,14 @@
 package ca.gabrielcastro.butteredtoast;
 
 import ca.gabrielcastro.butteredtoast.hooks.HookToastShow;
-import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-public class XposedHook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
-
-    public static String PATH = null;
-
-
-    @Override
-    public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
-
-        XC_MethodHook.Unhook show = new HookToastShow(loadPackageParam).hook();
-
-    }
-
+public class XposedHook implements IXposedHookZygoteInit {
 
     @Override
     public void initZygote(StartupParam startupParam) throws Throwable {
-        PATH = startupParam.modulePath;
+        XC_MethodHook.Unhook show = new HookToastShow().hook();
     }
+
 }

@@ -20,6 +20,8 @@
 package ca.gabrielcastro.butteredtoast.hooks;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.XModuleResources;
 import android.content.res.XResources;
 import android.graphics.drawable.Drawable;
@@ -39,6 +41,7 @@ import java.util.List;
 
 import ca.gabrielcastro.butteredtoast.Util;
 import ca.gabrielcastro.butteredtoast.XposedHook;
+import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -46,10 +49,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class HookToastShow extends XC_MethodHook implements AutoHookable {
 
-    private final XC_LoadPackage.LoadPackageParam mParam;
-
-    public HookToastShow(XC_LoadPackage.LoadPackageParam packageParam) {
-        this.mParam = packageParam;
+    public HookToastShow() {
     }
 
     @Override
@@ -58,7 +58,10 @@ public class HookToastShow extends XC_MethodHook implements AutoHookable {
         try {
 
             View view = t.getView();
-            String appName = view.getContext().getPackageManager().getApplicationLabel(mParam.appInfo).toString();
+            Context context = view.getContext();
+            PackageManager pm = context.getPackageManager();
+            ApplicationInfo info = context.getApplicationInfo();
+            String appName = pm.getApplicationLabel(info).toString();
             List<TextView> list = new ArrayList<TextView>();
             if (view instanceof TextView) {
                 list.add((TextView) view);
