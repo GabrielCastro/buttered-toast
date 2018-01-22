@@ -36,7 +36,7 @@ public class Util {
             if (child instanceof TextView) {
                 addTo.add((TextView) child);
             } else if (child instanceof ViewGroup) {
-                finaAllTextView(addTo, view);
+                finaAllTextView(addTo, (ViewGroup) child);
             }
         }
     }
